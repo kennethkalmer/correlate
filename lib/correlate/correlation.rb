@@ -22,7 +22,15 @@ module Correlate
     end
 
     def correlate( obj )
+      classify.get( obj['href'] )
+    end
 
+    private
+
+    def classify
+      raise "Class #{klass} not found" if !Object.const_defined?( klass.to_sym )
+
+      Object.const_get( klass.to_sym )
     end
 
   end
