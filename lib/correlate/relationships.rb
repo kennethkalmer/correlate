@@ -44,5 +44,8 @@ module Correlate
       EOF
     end
 
+    def a( *args )
+    end
+
   end
 end
