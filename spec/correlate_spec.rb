@@ -42,6 +42,14 @@ describe Correlate do
 
       @person.people.should == [ person ]
     end
+
+    it "should have the raw associations" do
+      person = Person.create :name => 'Jack'
+      @person.people << person
+      @person.save!
+
+      @person.people( true ).should == [{'rel' => 'person', 'href' => person.id }]
+    end
   end
 
   describe "to some others" do
@@ -70,6 +78,14 @@ describe Correlate do
 
       @reader.news_feeds.should == [ feed ]
     end
+
+    it "should have access to the raw accosiations" do
+      feed = NewsFeed.create :url => 'http://planet.couchdb.com/atom.xml'
+      @reader.news_feeds << feed
+      @reader.save!
+
+      @reader.news_feeds( true ).should == [{ 'rel' => 'news_feed', 'href' => feed.id }]
+    end
   end
 
   describe "to another" do
@@ -97,6 +113,14 @@ describe Correlate do
       @feed.save!
 
       @feed.crawler.should == crawler
+    end
+
+    it "should give access to the raw association" do
+      crawler = Crawler.create :host => 'foo.example.com'
+      @feed.crawler = crawler
+      @feed.save!
+
+      @feed.crawler( true ).should == { 'rel' => 'crawler', 'href' => crawler.id }
     end
   end
 end
