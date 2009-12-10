@@ -1,7 +1,7 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe Correlate do
-  fixtures :person, :reader, :news_feed
+  fixtures :person, :reader, :news_feed, :crawler
 
   describe "extends classes" do
     it "to track correlations" do
@@ -69,6 +69,34 @@ describe Correlate do
       @reader.save!
 
       @reader.news_feeds.should == [ feed ]
+    end
+  end
+
+  describe "to another" do
+    before(:each) do
+      @feed = NewsFeed.new( :url => 'http://planet.couchdb.com/atom.xml' )
+    end
+
+    it "should have a nil instance" do
+      @feed.crawler.should be_nil
+    end
+
+    it "should accept a new instance" do
+      crawler = Crawler.create :host => 'foo.example.com'
+      @feed.crawler = crawler
+
+      @feed.links.should == [{ 'rel' => 'crawler', 'href' => crawler.id }]
+      @feed.save!
+
+      NewsFeed.get( @feed.id ).links.should == [{ 'rel' => 'crawler', 'href' => crawler.id }]
+    end
+
+    it "should load the object from the association" do
+      crawler = Crawler.create :host => 'foo.example.com'
+      @feed.crawler = crawler
+      @feed.save!
+
+      @feed.crawler.should == crawler
     end
   end
 end

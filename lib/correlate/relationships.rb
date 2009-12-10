@@ -45,6 +45,32 @@ module Correlate
     end
 
     def a( *args )
+      name = args.shift
+      opts = args.empty? ? {} : args.last
+
+      correlation = Correlation.new
+      correlation.name = name
+      correlation.type = :a
+      correlation.klass = opts[:class]
+      correlation.rel = opts[:rel]
+      correlation.id_method = opts[:id_method]
+
+      @klass.correlations << correlation
+
+      @klass.class_eval <<-EOF, __FILE__, __LINE__
+        def #{name}=( object )
+          self.links.replace( object )
+        end
+
+        def #{name}( raw = false )
+          correlation = self.links.rel( '#{name}' ).first
+          return if correlation.nil?
+
+          correlation = self.links.correlation_for_object( correlation ).correlate( correlation ) unless raw
+
+          correlation
+        end
+      EOF
     end
 
   end

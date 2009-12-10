@@ -13,7 +13,15 @@ module Correlate
     end
 
     def <<( obj )
-      ( @original_copy || @target_array ).push({ 'rel' => rel_for_object( obj ), 'href' => id_for_object( obj ) })
+      write_target.push({ 'rel' => rel_for_object( obj ), 'href' => id_for_object( obj ) })
+    end
+
+    def replace( obj )
+      rel = rel_for_object( obj )
+
+      write_target.reject! { |l| l['rel'] == rel }
+
+      self.<< obj
     end
 
     def correlation_for_object( obj )
@@ -59,6 +67,10 @@ module Correlate
       else
         obj.send( c.id_method )
       end
+    end
+
+    def write_target
+      @original_copy || @target_array
     end
 
     def method_missing( name, *args, &block )

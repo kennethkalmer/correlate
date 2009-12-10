@@ -14,7 +14,7 @@ module Correlate
     end
 
     def rel
-      @rel || @name
+      (@rel || @name).to_s
     end
 
     def id_method

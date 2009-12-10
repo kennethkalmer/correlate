@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe Correlate::Links do
+  fixtures :person
+
   before(:each) do
     @blank = Correlate::Links.new( Person )
 
@@ -10,5 +12,11 @@ describe Correlate::Links do
 
   it "should be able to find by rel" do
     @links.rel( 'foo' ).should == [{ 'rel' => 'foo', 'href' => 'bar' }]
+  end
+
+  it "should be able to replace by rel" do
+    @links.replace({ 'rel' => 'foo', 'href' => 'baz' })
+
+    @links.should == [{ 'rel' => 'foo', 'href' => 'baz' }]
   end
 end

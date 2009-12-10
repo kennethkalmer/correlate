@@ -1,4 +1,4 @@
-# The news feeds read by a reader
+# The news feeds read by a reader, and has a crawler that updates it
 class NewsFeed < CouchRest::ExtendedDocument
 
   include Correlate
@@ -8,6 +8,6 @@ class NewsFeed < CouchRest::ExtendedDocument
   property :url
 
   related_to do
-    a :reader
+    a :crawler, :class => 'Crawler'
   end
 end
