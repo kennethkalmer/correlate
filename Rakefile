@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'rake'
-require 'lib/correlate'
+require File.dirname(__FILE__) + '/lib/correlate'
 
 begin
   require 'jeweler'
