@@ -8,7 +8,6 @@ begin
     gem.version = Correlate::VERSION
     gem.name = "correlate"
     gem.summary = %Q{Help correlate individual documents in a No/Less-SQL environment}
-    gem.description = %Q{TODO: longer description of your gem}
     gem.email = "kenneth.kalmer@gmail.com"
     gem.homepage = "http://github.com/kennethkalmer/correlate"
     gem.authors = ["Kenneth Kalmer"]
