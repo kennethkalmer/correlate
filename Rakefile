@@ -1,9 +1,11 @@
 require 'rubygems'
 require 'rake'
+require 'lib/correlate'
 
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
+    gem.version = Correlate::VERSION
     gem.name = "correlate"
     gem.summary = %Q{Help correlate individual documents in a No/Less-SQL environment}
     gem.description = %Q{TODO: longer description of your gem}

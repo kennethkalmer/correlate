@@ -1,6 +1,8 @@
 
 module Correlate
 
+  VERSION = '0.0.0'
+
   autoload :Relationships, 'correlate/relationships'
   autoload :Links,         'correlate/links'
   autoload :Correlation,   'correlate/correlation'
