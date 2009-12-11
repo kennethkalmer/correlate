@@ -4,6 +4,7 @@ module Correlate
   autoload :Relationships, 'correlate/relationships'
   autoload :Links,         'correlate/links'
   autoload :Correlation,   'correlate/correlation'
+  autoload :Validator,     'correlate/validator'
 
   def self.included( base )
     base.extend( ClassMethods )

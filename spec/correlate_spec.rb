@@ -1,7 +1,7 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe Correlate do
-  fixtures :person, :reader, :news_feed, :crawler
+  fixtures :person, :reader, :news_feed, :crawler, :student, :course
 
   describe "extends classes" do
     it "to track correlations" do
@@ -121,6 +121,21 @@ describe Correlate do
       @feed.save!
 
       @feed.crawler( true ).should == { 'rel' => 'crawler', 'href' => crawler.id }
+    end
+  end
+
+  describe "validations" do
+    before(:each) do
+      @student = Student.new
+    end
+
+    it "should be enforced" do
+      @student.should_not be_valid
+    end
+
+    it "should be met" do
+      @student.enlistments << Course.create( :name => 'B.Sc Foo' )
+      @student.should be_valid
     end
   end
 end

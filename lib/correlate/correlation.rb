@@ -1,6 +1,6 @@
 module Correlate
   class Correlation
-    attr_accessor :name, :type, :klass, :rel, :id_method
+    attr_accessor :name, :type, :klass, :rel, :id_method, :requires
 
     def matches?( obj )
       case obj

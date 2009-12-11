@@ -9,7 +9,9 @@ module Correlate
         klass.property :links, :type => 'Correlate::Links', :default => Correlate::Links.new( klass )
 
         # Setup our conveniences
-        new( klass ).instance_eval( &block )
+        relationships = new( klass )
+        relationships.instance_eval( &block )
+        relationships.build_validators
       end
 
     end
@@ -22,14 +24,7 @@ module Correlate
       name = args.shift
       opts = args.empty? ? {} : args.last
 
-      correlation = Correlation.new
-      correlation.name = name
-      correlation.type = :some
-      correlation.klass = opts[:class]
-      correlation.rel = opts[:rel]
-      correlation.id_method = opts[:id_method]
-
-      @klass.correlations << correlation
+      @klass.correlations << build_correlation( name, :some, opts )
 
       @klass.class_eval <<-EOF, __FILE__, __LINE__
         def #{name}( raw = false )
@@ -48,14 +43,7 @@ module Correlate
       name = args.shift
       opts = args.empty? ? {} : args.last
 
-      correlation = Correlation.new
-      correlation.name = name
-      correlation.type = :a
-      correlation.klass = opts[:class]
-      correlation.rel = opts[:rel]
-      correlation.id_method = opts[:id_method]
-
-      @klass.correlations << correlation
+      @klass.correlations << build_correlation( name, :a, opts )
 
       @klass.class_eval <<-EOF, __FILE__, __LINE__
         def #{name}=( object )
@@ -71,6 +59,28 @@ module Correlate
           correlation
         end
       EOF
+    end
+
+    def build_validators
+      if @klass.included_modules.include?( CouchRest::Validation )
+        fields = [ :links ]
+        opts = @klass.opts_from_validator_args( fields )
+        @klass.add_validator_to_context( opts, fields, Correlate::Validator )
+      end
+    end
+
+    protected
+
+    def build_correlation( name, type, opts )
+      correlation = Correlation.new
+      correlation.name = name
+      correlation.type = type
+      correlation.klass = opts[:class]
+      correlation.rel = opts[:rel]
+      correlation.id_method = opts[:id_method]
+      correlation.requires = opts[:requires]
+
+      correlation
     end
 
   end
