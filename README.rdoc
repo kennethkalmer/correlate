@@ -1,6 +1,50 @@
-= correlate
+= Correlate
 
-Description goes here.
+Correlate is an experiment in loosely expressing relationsips between documents
+stored in couchdb using couchrest.
+
+Correlate stores all the relationships in an array of links, similar to the link
+elements found in HTML:
+
+  {
+    ...
+    "links" : [
+     { "rel" : "another_doc", "href" : "<uuid>" },
+     { "rel" : "important", "href" : "<uuid>" }
+     ...
+    ]
+    ...
+  }
+
+Inspired by looking for ways to express the loosened relationships that exists
+between documents inside CouchDB, but to not mimic the nature of an RDBMS.
+
+== Usage
+
+  require 'correlate'
+
+  class MyDocument < CouchRest::ExtendedDocument
+
+    include Correlate
+
+    related_to do
+      some :other_documents, :class => 'OtherDocument', :rel => 'other_doc'
+    end
+  end
+
+This sets up a +links+ property on the document, with some accessors for loading
+and ammending relationships:
+
+  my_doc = MyDocument.new
+
+  my_doc.other_documents << other_document_instance
+
+  my_doc.other_documents #=> [ other_document_instance ]
+
+== Status
+
+This project is highly experimental, but is in use in a few applications in one
+form or another.
 
 == Note on Patches/Pull Requests
  
