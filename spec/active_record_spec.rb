@@ -17,4 +17,14 @@ describe Correlate, ActiveRecord do
 
     @article.comments.should == [ comment ]
   end
+
+  it "should be reciprocal" do
+    comment = Comment.create( :comment => 'extreme' )
+    comment.article = @article
+
+    comment.article.should == @article
+    comment.save
+
+    Comment.get( comment.id ).article.should == @article
+  end
 end

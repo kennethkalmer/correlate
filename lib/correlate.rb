@@ -18,10 +18,6 @@ module Correlate
       Correlate::Relationships.configure!( self, &block )
     end
 
-    def links=( array )
-      Correlate::Links.new( self, array )
-    end
-
     def correlations
       @correlations ||= []
     end

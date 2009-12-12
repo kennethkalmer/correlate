@@ -14,6 +14,13 @@ module Correlate
           relationships.instance_eval( &block )
           relationships.build_validators
           relationships.build_views
+
+          # Make sure our links array is properly casted
+          klass.class_eval <<-EOF, __FILE__, __LINE__
+            def links=( array )
+              self[:links] = Correlate::Links.new( self.class, array )
+            end
+          EOF
         end
 
       end
