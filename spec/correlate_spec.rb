@@ -11,7 +11,12 @@ describe Correlate do
       correlation.should be_a_kind_of( Correlate::Correlation )
       correlation.type.should == :some
       correlation.name.should == :people
-      correlation.klass.should == 'Person'
+      correlation.target.should == 'Person'
+      correlation.source.should == Person
+    end
+
+    it "should define a view for looking up rels" do
+      Person.should have_view('by_rel')
     end
   end
 

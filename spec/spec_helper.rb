@@ -6,6 +6,7 @@ require 'spec/autorun'
 
 require 'rubygems' unless ENV['NO_RUBYGEMS']
 require 'couchrest'
+require 'activerecord_helper'
 
 unless defined?( COUCHHOST )
   COUCHHOST = "http://127.0.0.1:5984"
@@ -16,7 +17,13 @@ unless defined?( COUCHHOST )
 end
 
 Spec::Runner.configure do |config|
-  config.before(:all) { reset_test_db! }
+  config.before(:suite) do
+    reset_test_sqlitedb!
+  end
+
+  config.before(:all) do
+    reset_test_couchdb!
+  end
 end
 
 def fixtures( *args )
@@ -28,7 +35,7 @@ def fixtures( *args )
   end
 end
 
-def reset_test_db!
+def reset_test_couchdb!
   DB.recreate! rescue nil
   DB
 end
