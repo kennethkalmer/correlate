@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Kenneth Kalmer"]
-  s.date = %q{2009-12-11}
+  s.date = %q{2009-12-12}
   s.email = %q{kenneth.kalmer@gmail.com}
   s.extra_rdoc_files = [
     "LICENSE",
@@ -21,13 +21,21 @@ Gem::Specification.new do |s|
      "LICENSE",
      "README.rdoc",
      "Rakefile",
+     "correlate.gemspec",
      "lib/correlate.rb",
      "lib/correlate/correlation.rb",
      "lib/correlate/links.rb",
      "lib/correlate/relationships.rb",
+     "lib/correlate/relationships/active_record.rb",
+     "lib/correlate/relationships/active_record/collection_proxy.rb",
+     "lib/correlate/relationships/couchrest.rb",
      "lib/correlate/validator.rb",
+     "spec/active_record_spec.rb",
+     "spec/activerecord_helper.rb",
      "spec/correlate_spec.rb",
+     "spec/fixtures/article.rb",
      "spec/fixtures/blank_doc.rb",
+     "spec/fixtures/comment.rb",
      "spec/fixtures/course.rb",
      "spec/fixtures/crawler.rb",
      "spec/fixtures/news_feed.rb",
@@ -47,8 +55,12 @@ Gem::Specification.new do |s|
   s.rubygems_version = %q{1.3.5}
   s.summary = %q{Help correlate individual documents in a No/Less-SQL environment}
   s.test_files = [
-    "spec/correlate_spec.rb",
+    "spec/active_record_spec.rb",
+     "spec/activerecord_helper.rb",
+     "spec/correlate_spec.rb",
+     "spec/fixtures/article.rb",
      "spec/fixtures/blank_doc.rb",
+     "spec/fixtures/comment.rb",
      "spec/fixtures/course.rb",
      "spec/fixtures/crawler.rb",
      "spec/fixtures/news_feed.rb",
@@ -67,15 +79,21 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
+      s.add_runtime_dependency(%q<couchrest>, [">= 0.33"])
       s.add_development_dependency(%q<rspec>, [">= 1.2.9"])
       s.add_development_dependency(%q<yard>, [">= 0"])
+      s.add_development_dependency(%q<activerecord>, [">= 2.3.2"])
     else
+      s.add_dependency(%q<couchrest>, [">= 0.33"])
       s.add_dependency(%q<rspec>, [">= 1.2.9"])
       s.add_dependency(%q<yard>, [">= 0"])
+      s.add_dependency(%q<activerecord>, [">= 2.3.2"])
     end
   else
+    s.add_dependency(%q<couchrest>, [">= 0.33"])
     s.add_dependency(%q<rspec>, [">= 1.2.9"])
     s.add_dependency(%q<yard>, [">= 0"])
+    s.add_dependency(%q<activerecord>, [">= 2.3.2"])
   end
 end
 

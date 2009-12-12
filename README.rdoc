@@ -1,7 +1,7 @@
 = Correlate
 
 Correlate is an experiment in loosely expressing relationsips between documents
-stored in couchdb using couchrest.
+stored in CouchDB using couchrest.
 
 Correlate stores all the relationships in an array of links, similar to the link
 elements found in HTML:
@@ -40,6 +40,57 @@ and ammending relationships:
   my_doc.other_documents << other_document_instance
 
   my_doc.other_documents #=> [ other_document_instance ]
+
+== Associations with ActiveRecord models
+
+When transitioning from ActiveRecord to CouchDB it is inevitable that relationships
+will exist across the boundaries of each database. Correlate helps you to express
+these relationships:
+
+== CouchDB to ActiveRecord
+
+Pretty much the same as the examples above:
+
+  class MyDocument < CouchRest::ExtendedDocument
+
+    include Correlate
+
+    related_to do
+      a :model, :class => 'Model', :rel => 'model'
+    end
+  end
+
+== ActiveRecord to CouchDB
+
+When using an 'a' relationship, you don't need to specify any additional 
+information, but when specifying a 'some' relationship you'll want to supply
+the name of the view.
+
+  class SomeModel < ActiveRecord::Base
+
+    include Correlate
+
+    related_to do
+      some :documents, :class => 'Document', :view => 'some_model_id', :key => :id
+      some :notes, :class => 'Note', :rel => 'some_model'
+    end
+  end
+
+  class Document < CouchRest::ExtendedDocument
+
+    property :some_model_id
+
+    view_by :some_model_id
+  end
+
+  class Note < CouchRest::ExtendedDocument
+
+    include Correlate
+
+    related_to do
+      a :some_model, :class => 'SomeModel', :rel => 'some_model'
+    end
+  end
 
 == Status
 

@@ -11,8 +11,10 @@ begin
     gem.email = "kenneth.kalmer@gmail.com"
     gem.homepage = "http://github.com/kennethkalmer/correlate"
     gem.authors = ["Kenneth Kalmer"]
+    gem.add_dependency "couchrest", ">= 0.33"
     gem.add_development_dependency "rspec", ">= 1.2.9"
     gem.add_development_dependency "yard", ">= 0"
+    gem.add_development_dependency "activerecord", ">= 2.3.2"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
   Jeweler::GemcutterTasks.new
