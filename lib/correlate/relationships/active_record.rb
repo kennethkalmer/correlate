@@ -134,7 +134,7 @@ module Correlate
             correlation = self.links.rel( '#{name}' ).first
             return if correlation.nil?
 
-            correlation = self.links.correlation_for_object( correlation ).correlate( correlation ) unless raw
+            correlation = self.class.correlation_for( correlation ).correlate( correlation ) unless raw
 
             correlation
           end

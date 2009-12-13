@@ -85,6 +85,13 @@ module Correlate
       @correlations ||= []
     end
 
+    # Determine the matching correlation for the provided object.
+    # @return [ Correlate::Correlation, nil ]
+    # @see Correlate::Correlation#matches?
+    def correlation_for( object )
+      self.correlations.detect { |c| c.matches?( object ) }
+    end
+
   end
 
 end

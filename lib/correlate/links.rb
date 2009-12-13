@@ -1,4 +1,5 @@
 module Correlate
+  # Thin proxy around the array of links.
   class Links
 
     instance_methods.each { |m| undef_method m unless m =~ /(^__|^send$|^object_id$)/ }
@@ -8,26 +9,34 @@ module Correlate
       @target_array = array
     end
 
+    # Extract all the matching links for rel.
+    #
+    # @param [String] rel
+    # @return [ Correlate::Links ] for matching links
     def rel( rel )
       clone( @target_array.select { |link| link['rel'] == rel } )
     end
 
+    # Add an object to the list
     def <<( obj )
       write_target.push({ 'rel' => rel_for_object( obj ), 'href' => id_for_object( obj ) })
     end
 
-    def replace( obj )
-      rel = rel_for_object( obj )
+    alias :push :<<
+    alias :concat :<<
 
-      write_target.reject! { |l| l['rel'] == rel }
+    # Replace a matching +rel+ with this object
+    def replace( obj )
+      delete( obj )
 
       self.<< obj
     end
 
-    def correlation_for_object( obj )
-      @klass.correlations.detect do |correlation|
-        correlation.matches?( obj )
-      end
+    # Delete this object from the list
+    def delete( obj )
+      rel = rel_for_object( obj )
+
+      write_target.reject! { |l| l['rel'] == rel }
     end
 
     def __debug__
@@ -51,7 +60,7 @@ module Correlate
     end
 
     def rel_for_object( obj )
-      c = correlation_for_object( obj )
+      c = @klass.correlation_for( obj )
 
       if c.nil? && obj.instance_of?( Hash )
         obj['rel']
@@ -61,7 +70,7 @@ module Correlate
     end
 
     def id_for_object( obj )
-      c = correlation_for_object( obj )
+      c = @klass.correlation_for( obj )
       if c.nil? && obj.instance_of?( Hash )
         obj['href']
       else

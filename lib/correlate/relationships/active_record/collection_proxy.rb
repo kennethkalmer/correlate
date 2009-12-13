@@ -18,6 +18,9 @@ module Correlate
           object.save
         end
 
+        alias :push :<<
+        alias :concat :<<
+
         protected
 
         def method_missing( name, *args, &block )

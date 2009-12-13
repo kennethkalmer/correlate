@@ -19,4 +19,9 @@ describe Correlate::Links do
 
     @links.should == [{ 'rel' => 'foo', 'href' => 'baz' }]
   end
+
+  it "should be able to delete by rel" do
+    @links.delete({ 'rel' => 'foo', 'href' => 'bar' })
+    @links.should be_empty
+  end
 end
