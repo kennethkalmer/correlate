@@ -21,6 +21,9 @@ module Correlate
     # For +some+ relationships specify how many instances are required
     attr_accessor :requires
 
+    # For +a+ relationships specify if required
+    attr_accessor :required
+
     # Class method on the target class used when loading single instances
     # (defaults to +get+ for CouchRest docs, and +find+ for ActiveRecord models)
     attr_accessor :load_via

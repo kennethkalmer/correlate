@@ -25,6 +25,7 @@ module Correlate
         correlation.rel = opts[:rel]
         correlation.id_method = opts[:id_method]
         correlation.requires = opts[:requires]
+        correlation.required = opts[:required]
 
         correlation
       end
