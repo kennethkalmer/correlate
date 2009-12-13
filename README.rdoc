@@ -24,6 +24,26 @@ between documents inside CouchDB, but to not mimic the nature of an RDBMS.
 * http://rdoc.info/projects/kennethkalmer/correlata
 * spec directory
 
+== Installation and dependencies
+
+Use:
+
+* couchrest 0.33 or later
+
+Development:
+
+* jeweler
+* rspec
+* activerecord
+* yard
+
+Installation:
+
+  $ gem install correlate
+
+Correlate does not depend on ActiveRecord and can be safely used in any project
+that doesn't use ActiveRecord.
+
 == Usage
 
   require 'correlate'
