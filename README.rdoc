@@ -19,6 +19,11 @@ elements found in HTML:
 Inspired by looking for ways to express the loosened relationships that exists
 between documents inside CouchDB, but to not mimic the nature of an RDBMS.
 
+== Documentation
+
+* http://rdoc.info/projects/kennethkalmer/correlata
+* spec directory
+
 == Usage
 
   require 'correlate'
