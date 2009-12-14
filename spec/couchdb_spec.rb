@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
-describe Correlate do
+describe Correlate, "CouchDB" do
   fixtures :person, :reader, :news_feed, :crawler
 
   describe "extends classes" do

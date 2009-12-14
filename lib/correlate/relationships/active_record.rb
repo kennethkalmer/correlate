@@ -123,7 +123,8 @@ module Correlate
       def a( name, options = {} )
         options[:source] = @klass
 
-        @klass.correlations << Correlate::Relationships.build_correlation( name, :a, options )
+        correlation = Correlate::Relationships.build_correlation( name, :a, options )
+        @klass.correlations <<  correlation
 
         @klass.class_eval <<-EOF, __FILE__, __LINE__
           def #{name}=( object )
@@ -131,7 +132,7 @@ module Correlate
           end
 
           def #{name}( raw = false )
-            correlation = self.links.rel( '#{name}' ).first
+            correlation = self.links.rel( '#{correlation.rel}' ).first
             return if correlation.nil?
 
             correlation = self.class.correlation_for( correlation ).correlate( correlation ) unless raw

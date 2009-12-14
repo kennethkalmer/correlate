@@ -76,15 +76,13 @@ module Correlate
       def some( name, options = {} )
         options[:source] = @klass
 
-        @klass.correlations << Correlate::Relationships.build_correlation( name, :some, options )
+        correlation = Correlate::Relationships.build_correlation( name, :some, options )
+        @klass.correlations << correlation
 
         @klass.class_eval <<-EOF, __FILE__, __LINE__
           def #{name}( raw = false )
-            correlations = self.links.rel( '#{name}' )
+            correlations = self.links.rel( '#{correlation.rel}' )
 
-            #correlations.map! do |c|
-            #  self.links.correlation_for_object( c ).correlate( c )
-            #end unless raw
             unless raw
               c = self.class.correlation_for( correlations.first )
               correlations = c.bulk_correlate( correlations ) unless c.nil?
@@ -124,7 +122,8 @@ module Correlate
       def a( name, options = {} )
         options[:source] = @klass
 
-        @klass.correlations << Correlate::Relationships.build_correlation( name, :a, options )
+        correlation = Correlate::Relationships.build_correlation( name, :some, options )
+        @klass.correlations << correlation
 
         @klass.class_eval <<-EOF, __FILE__, __LINE__
           def #{name}=( object )
@@ -132,7 +131,7 @@ module Correlate
           end
 
           def #{name}( raw = false )
-            correlation = self.links.rel( '#{name}' ).first
+            correlation = self.links.rel( '#{correlation.rel}' ).first
             return if correlation.nil?
 
             correlation = self.class.correlation_for( correlation ).correlate( correlation ) unless raw

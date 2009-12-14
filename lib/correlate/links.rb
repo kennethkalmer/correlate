@@ -19,7 +19,9 @@ module Correlate
 
     # Add an object to the list
     def <<( obj )
-      write_target.push({ 'rel' => rel_for_object( obj ), 'href' => id_for_object( obj ) })
+      write_targets do |target|
+        target.push({ 'rel' => rel_for_object( obj ), 'href' => id_for_object( obj ) })
+      end
     end
 
     alias :push :<<
@@ -36,7 +38,9 @@ module Correlate
     def delete( obj )
       rel = rel_for_object( obj )
 
-      write_target.reject! { |l| l['rel'] == rel }
+      write_targets do |target|
+        target.reject! { |l| l['rel'] == rel }
+      end
     end
 
     def __debug__
@@ -57,12 +61,13 @@ module Correlate
 
     def subset_of( links_instance )
       @original_copy = links_instance
+      self
     end
 
     def rel_for_object( obj )
       c = @klass.correlation_for( obj )
 
-      if c.nil? && obj.instance_of?( Hash )
+      if c.nil? || obj.instance_of?( Hash )
         obj['rel']
       else
         c.rel
@@ -71,7 +76,7 @@ module Correlate
 
     def id_for_object( obj )
       c = @klass.correlation_for( obj )
-      if c.nil? && obj.instance_of?( Hash )
+      if c.nil? || obj.instance_of?( Hash )
         obj['href']
       else
         obj.send( c.id_method )
@@ -80,6 +85,12 @@ module Correlate
 
     def write_target
       @original_copy || @target_array
+    end
+
+    def write_targets( &block )
+      yield @original_copy unless @original_copy.nil?
+
+      yield @target_array
     end
 
     def method_missing( name, *args, &block )
