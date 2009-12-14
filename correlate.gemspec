@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{correlate}
-  s.version = "0.1.0"
+  s.version = "0.1.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Kenneth Kalmer"]
-  s.date = %q{2009-12-13}
+  s.date = %q{2009-12-14}
   s.email = %q{kenneth.kalmer@gmail.com}
   s.extra_rdoc_files = [
     "LICENSE",
@@ -33,6 +33,7 @@ Gem::Specification.new do |s|
      "spec/active_record_spec.rb",
      "spec/activerecord_helper.rb",
      "spec/correlate_spec.rb",
+     "spec/correlation_spec.rb",
      "spec/fixtures/article.rb",
      "spec/fixtures/blank_doc.rb",
      "spec/fixtures/comment.rb",
@@ -59,6 +60,7 @@ Gem::Specification.new do |s|
     "spec/active_record_spec.rb",
      "spec/activerecord_helper.rb",
      "spec/correlate_spec.rb",
+     "spec/correlation_spec.rb",
      "spec/fixtures/article.rb",
      "spec/fixtures/blank_doc.rb",
      "spec/fixtures/comment.rb",

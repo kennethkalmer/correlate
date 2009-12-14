@@ -1,0 +1,7 @@
+== 0.1.1 (2009-12-14)
+
+* Fixed an issue where target classes are namespaced
+
+== 0.1.0 (2009-12-13)
+
+* Initial release

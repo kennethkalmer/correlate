@@ -57,7 +57,7 @@
 # @see Correlate::Relationships::ActiveRecord
 module Correlate
 
-  VERSION = '0.1.0'
+  VERSION = '0.1.1'
 
   autoload :Relationships, 'correlate/relationships'
   autoload :Links,         'correlate/links'
