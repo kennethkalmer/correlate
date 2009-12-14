@@ -93,6 +93,18 @@ module Correlate
       { f => t }
     end
 
+    def target_class
+      target.split('::').inject( Object ) do |parent, klass|
+        raise "Class #{klass} not found" if !parent.const_defined?( klass.to_sym )
+
+        parent.const_get( klass.to_sym )
+      end
+    end
+
+    def source_class
+      source
+    end
+
     private
 
     # The class method used to load instances of the documents.
@@ -101,16 +113,5 @@ module Correlate
         target_class.ancestors.include?( CouchRest::ExtendedDocument ) ? :get : :find
       )
     end
-
-    def target_class
-      raise "Class #{target} not found" if !Object.const_defined?( target.to_sym )
-
-      Object.const_get( target.to_sym )
-    end
-
-    def source_class
-      source
-    end
-
   end
 end
