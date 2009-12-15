@@ -58,6 +58,30 @@ describe Correlate::Links do
     end
 
     it "should recipocate replacements"
+
+    it "should delay recipocations of new objects until saved (when added to existing links)" do
+      rob = Person.new( :name => 'Rob' )
+      @jill.links << rob
+
+      @jill.links.size.should be(1)
+      rob.links.should == [{ 'rel' => 'person', 'href' => @jill.id }]
+
+      rob.save
+
+      @jill.links.should == [{ 'rel' => 'person', 'href' => @jack.id }, { 'rel' => 'person', 'href' => rob.id }]
+    end
+
+    it "should delay recipocations of new objects until saved (when added to new links)" do
+      rob = Person.new( :name => 'Rob' )
+      rob.links << @jill
+
+      @jill.links.size.should be(1)
+      rob.links.should == [{ 'rel' => 'person', 'href' => @jill.id }]
+
+      rob.save
+
+      @jill.links.should == [{ 'rel' => 'person', 'href' => @jack.id }, { 'rel' => 'person', 'href' => rob.id }]
+    end
   end
 
   describe "internals" do

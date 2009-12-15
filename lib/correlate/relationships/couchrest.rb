@@ -34,6 +34,7 @@ module Correlate
           relationships.instance_eval( &block )
           relationships.build_validators
           relationships.build_views
+          relationships.build_callbacks
 
           # Make sure our links array is properly casted
           klass.class_eval <<-EOF, __FILE__, __LINE__
@@ -173,6 +174,15 @@ module Correlate
               }
             }
           MAP
+      end
+
+      def build_callbacks
+        @klass.after_create do |object|
+          object.links.recipocate_delayed_updates!
+        end
+        @klass.after_save do |object|
+          object.links.recipocate_delayed_updates!
+        end
       end
 
     end

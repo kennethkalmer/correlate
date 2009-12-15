@@ -11,6 +11,9 @@ module Correlate
       @klass = klass
       @target_array = array
       @owner = owner
+
+      @delayed_writes = []
+      @delayed_notifications = []
     end
 
     # Extract all the matching links for rel.
@@ -25,7 +28,13 @@ module Correlate
     def <<( obj )
 
       write( obj ) do |target, object|
-        target.push({ 'rel' => rel_for_object( object ), 'href' => id_for_object( object ) })
+        if object.respond_to?( :new?  ) && object.new?
+          @delayed_writes.push( object )
+        else
+
+          link = { 'rel' => rel_for_object( object ), 'href' => id_for_object( object ) }
+          target.push( link ) unless target.include?( link )
+        end
       end
     end
 
@@ -38,21 +47,65 @@ module Correlate
       delete( obj )
 
       self.push obj
+    end
+
+    # Delete this object from the list, returns +self+
+    def delete( object )
+
+      write_targets do |target|
+        rel = rel_for_object( object )
+        target.reject! { |l| l['rel'] == rel }
+      end
+
+      if (c = @klass.correlation_for( object )) && c.recipocal?
+        if self.owner && object.respond_to?( :links )
+          if object.links.recipocal?( self.owner )
+            object.links.delete( self.owner )
+            object.save unless object.new? || @recipocating
+          end
+        end
+      end
+
+      self.owner.save if self.owner && !self.owner.new? && !@recipocating
 
       self
     end
 
-    # Delete this object from the list, returns +self+
-    def delete( obj )
-
-      write( obj ) do |target, object|
-        rel = rel_for_object( object )
-        target.reject! { |l| l['rel'] == rel }
-      end
-    end
-
     def respond_to?( *args )
       proxy_respond_to?( *args ) || @target_array.respond_to?( *args )
+    end
+
+    def recipocate_delayed_updates!
+      @recipocating = true
+
+      @delayed_writes.each do |obj|
+        if obj.new?
+          obj.links.notify( self.owner )
+        else
+          self.push( obj )
+          obj.links.recipocate_delayed_updates!
+          @delayed_writes.delete( obj )
+        end
+      end
+
+      while obj = @delayed_notifications.pop
+        obj.links.recipocate_delayed_updates!
+      end
+
+      @recipocating = false
+
+      true # Don't halt any callback chains
+    end
+
+    def notify( target )
+      @delayed_notifications.push target
+    end
+
+    def recipocal?( obj )
+      rel = rel_for_object( obj )
+      id = id_for_object( obj )
+
+      any? { |link| link['rel'] == rel && link['href'] == id }
     end
 
     def __debug__
@@ -62,7 +115,9 @@ module Correlate
         :target_array => @target_array,
         :original_copy => @original_copy,
         :original_copy_object_id => @original_copy.object_id,
-        :owner => owner
+        :owner => owner,
+        :delayed_write => @delayed_writes,
+        :delayed_notifications => @delayed_notifications
       }
     end
 
@@ -98,23 +153,26 @@ module Correlate
       end
     end
 
-    def write_target
-      @original_copy || @target_array
+    def write_targets
+
+      yield @original_copy unless @original_copy.nil?
+      yield @target_array
     end
 
     def write( object, &block )
-      yield @original_copy, object unless @original_copy.nil?
 
-      yield @target_array, object
+      write_targets { |target| yield target, object }
 
       if (c = @klass.correlation_for( object )) && c.recipocal?
         if self.owner && object.respond_to?( :links )
-          yield object.links, self.owner
-          object.save
+          unless object.links.recipocal?( self.owner )
+            c.type == :a ? object.links.replace( self.owner ) : object.links.push( self.owner )
+            object.save unless object.new? || @recipocating
+          end
         end
       end
 
-      self.owner.save if self.owner
+      self.owner.save if self.owner && !self.owner.new? && !@recipocating
 
       self
     end
