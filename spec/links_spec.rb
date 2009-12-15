@@ -31,16 +31,33 @@ describe Correlate::Links do
     @links.should be_empty
   end
 
-  it "should be able to do recipocal updates" do
-    jack = Person.create( :name => 'Jack' )
-    jill = Person.create( :name => 'Jill' )
+  describe "recipocating" do
+    before(:each) do
+      @jack = Person.create( :name => 'Jack' )
+      @jill = Person.create( :name => 'Jill' )
 
-    jack.links << jill
-    jack.links.should == [{ 'rel' => 'person', 'href' => jill.id }]
-    jill.links.should == [{ 'rel' => 'person', 'href' => jack.id }]
+      @jack.links << @jill
+    end
 
-    Person.get( jack.id ).links.should == [{ 'rel' => 'person', 'href' => jill.id }]
-    Person.get( jill.id ).links.should == [{ 'rel' => 'person', 'href' => jack.id }]
+    it "should recipocate updates" do
+      @jack.links.should == [{ 'rel' => 'person', 'href' => @jill.id }]
+      @jill.links.should == [{ 'rel' => 'person', 'href' => @jack.id }]
+
+      Person.get( @jack.id ).links.should == [{ 'rel' => 'person', 'href' => @jill.id }]
+      Person.get( @jill.id ).links.should == [{ 'rel' => 'person', 'href' => @jack.id }]
+    end
+
+    it "should recipocate deletes" do
+      @jack.links.delete( @jill )
+
+      @jack.links.should be_empty
+      @jill.links.should be_empty
+
+      Person.get( @jack.id ).links.should be_empty
+      Person.get( @jill.id ).links.should be_empty
+    end
+
+    it "should recipocate replacements"
   end
 
   describe "internals" do

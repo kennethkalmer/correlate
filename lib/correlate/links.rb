@@ -45,8 +45,8 @@ module Correlate
     # Delete this object from the list, returns +self+
     def delete( obj )
 
-      write( obj ) do |target|
-        rel = rel_for_object( obj )
+      write( obj ) do |target, object|
+        rel = rel_for_object( object )
         target.reject! { |l| l['rel'] == rel }
       end
     end
