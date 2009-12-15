@@ -31,6 +31,18 @@ describe Correlate::Links do
     @links.should be_empty
   end
 
+  it "should be able to do recipocal updates" do
+    jack = Person.create( :name => 'Jack' )
+    jill = Person.create( :name => 'Jill' )
+
+    jack.links << jill
+    jack.links.should == [{ 'rel' => 'person', 'href' => jill.id }]
+    jill.links.should == [{ 'rel' => 'person', 'href' => jack.id }]
+
+    Person.get( jack.id ).links.should == [{ 'rel' => 'person', 'href' => jill.id }]
+    Person.get( jill.id ).links.should == [{ 'rel' => 'person', 'href' => jack.id }]
+  end
+
   describe "internals" do
     it "should provide a clone" do
       clone = @links.send( :clone, [] )

@@ -19,6 +19,13 @@ elements found in HTML:
 Inspired by looking for ways to express the loosened relationships that exists
 between documents inside CouchDB, but to not mimic the nature of an RDBMS.
 
+IMPORTANT:
+
+Unlike relational-thinking, all the relationships are expressed on the given
+object itself, not its correlated objects. Correlate does support recipocal
+correlations which, when enabled for a correlation, updates the links on both
+objects.
+
 == Documentation
 
 * http://rdoc.info/projects/kennethkalmer/correlata

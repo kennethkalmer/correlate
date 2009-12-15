@@ -57,12 +57,11 @@
 # @see Correlate::Relationships::ActiveRecord
 module Correlate
 
-  VERSION = '0.1.1'
+  VERSION = '0.1.2'
 
   autoload :Relationships, 'correlate/relationships'
   autoload :Links,         'correlate/links'
   autoload :Correlation,   'correlate/correlation'
-  autoload :Validator,     'correlate/validator'
 
   def self.included( base )
     base.extend( ClassMethods )

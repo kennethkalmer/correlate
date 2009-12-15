@@ -2,11 +2,15 @@ module Correlate
   # Thin proxy around the array of links.
   class Links
 
-    instance_methods.each { |m| undef_method m unless m =~ /(^__|^send$|^object_id$)/ }
+    alias :proxy_respond_to? :respond_to?
+    instance_methods.each { |m| undef_method m unless m =~ /(^__|^send$|^proxy_|^object_id$)/ }
 
-    def initialize( klass, array = [] )
+    attr_accessor :owner
+
+    def initialize( klass, array = [], owner = nil )
       @klass = klass
       @target_array = array
+      @owner = owner
     end
 
     # Extract all the matching links for rel.
@@ -17,30 +21,38 @@ module Correlate
       clone( @target_array.select { |link| link['rel'] == rel } )
     end
 
-    # Add an object to the list
+    # Add an object to the list, returns +self+
     def <<( obj )
-      write_targets do |target|
-        target.push({ 'rel' => rel_for_object( obj ), 'href' => id_for_object( obj ) })
+
+      write( obj ) do |target, object|
+        target.push({ 'rel' => rel_for_object( object ), 'href' => id_for_object( object ) })
       end
     end
 
     alias :push :<<
     alias :concat :<<
 
-    # Replace a matching +rel+ with this object
+    # Replace a matching +rel+ with this object, returns +self+
     def replace( obj )
+
       delete( obj )
 
-      self.<< obj
+      self.push obj
+
+      self
     end
 
-    # Delete this object from the list
+    # Delete this object from the list, returns +self+
     def delete( obj )
-      rel = rel_for_object( obj )
 
-      write_targets do |target|
+      write( obj ) do |target|
+        rel = rel_for_object( obj )
         target.reject! { |l| l['rel'] == rel }
       end
+    end
+
+    def respond_to?( *args )
+      proxy_respond_to?( *args ) || @target_array.respond_to?( *args )
     end
 
     def __debug__
@@ -49,19 +61,22 @@ module Correlate
         :klass => @klass,
         :target_array => @target_array,
         :original_copy => @original_copy,
-        :original_copy_object_id => @original_copy.object_id
+        :original_copy_object_id => @original_copy.object_id,
+        :owner => owner
       }
     end
 
     protected
 
     def clone( array )
-      Links.new( @klass, array ).subset_of( @original_copy || self )
+      copy = Links.new( @klass, array )
+      copy.subset_of( @original_copy || self )
+      copy.owner = self.owner
+      copy
     end
 
     def subset_of( links_instance )
       @original_copy = links_instance
-      self
     end
 
     def rel_for_object( obj )
@@ -87,10 +102,21 @@ module Correlate
       @original_copy || @target_array
     end
 
-    def write_targets( &block )
-      yield @original_copy unless @original_copy.nil?
+    def write( object, &block )
+      yield @original_copy, object unless @original_copy.nil?
 
-      yield @target_array
+      yield @target_array, object
+
+      if (c = @klass.correlation_for( object )) && c.recipocal?
+        if self.owner && object.respond_to?( :links )
+          yield object.links, self.owner
+          object.save
+        end
+      end
+
+      self.owner.save if self.owner
+
+      self
     end
 
     def method_missing( name, *args, &block )

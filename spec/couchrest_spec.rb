@@ -1,9 +1,10 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe Correlate, "CouchDB" do
-  fixtures :person, :reader, :news_feed, :crawler
 
   describe "extends classes" do
+    fixtures :person
+
     it "to track correlations" do
       Person.correlations.should_not be_empty
 
@@ -13,6 +14,7 @@ describe Correlate, "CouchDB" do
       correlation.name.should == :people
       correlation.target.should == 'Person'
       correlation.source.should == Person
+      correlation.should be_recipocal
     end
 
     it "should define a view for looking up rels" do
@@ -20,9 +22,11 @@ describe Correlate, "CouchDB" do
     end
   end
 
-  describe "to self" do
+  describe "to self & recipocal" do
+    fixtures :person
+
     before(:each) do
-      @person = Person.new
+      @person = Person.create( :name => 'Ken' )
     end
 
     it "should have an empty array" do
@@ -35,9 +39,11 @@ describe Correlate, "CouchDB" do
       @person.people << person
 
       @person.links.should == [{ 'rel' => 'person', 'href' => person.id }]
+      person.links.should == [{ 'rel' => 'person', 'href' => @person.id }]
       @person.save!
 
       Person.get( @person.id ).links.should == [{ 'rel' => 'person', 'href' => person.id }]
+      Person.get( person.id ).links.should == [{ 'rel' => 'person', 'href' => @person.id }]
     end
 
     it "should load objects from associations" do
@@ -46,6 +52,7 @@ describe Correlate, "CouchDB" do
       @person.save!
 
       @person.people.should == [ person ]
+      person.people.should == [ @person ]
     end
 
     it "should have the raw associations" do
@@ -54,10 +61,13 @@ describe Correlate, "CouchDB" do
       @person.save!
 
       @person.people( true ).should == [{'rel' => 'person', 'href' => person.id }]
+      person.people( true ).should == [{'rel' => 'person', 'href' => @person.id }]
     end
   end
 
   describe "to some others" do
+    fixtures :news_feed, :reader
+
     before(:each) do
       @reader = Reader.new
     end
@@ -94,6 +104,8 @@ describe Correlate, "CouchDB" do
   end
 
   describe "to another" do
+    fixtures :news_feed, :crawler
+
     before(:each) do
       @feed = NewsFeed.new( :url => 'http://planet.couchdb.com/atom.xml' )
     end
@@ -129,4 +141,38 @@ describe Correlate, "CouchDB" do
     end
   end
 
+  describe "validations for 'some'" do
+    fixtures :student, :course
+
+    before(:each) do
+      @student = Student.new
+    end
+
+    it "should be enforced" do
+      @student.should_not be_valid
+    end
+
+    it "should be met" do
+      @student.enlistments << Course.create( :name => 'B.Sc Foo' )
+      @student.should be_valid
+    end
+  end
+
+  describe "validations for 'a'" do
+    fixtures :comment, :article
+
+    before(:each) do
+      @comment = Comment.new
+    end
+
+    it "should be enforced" do
+      @comment.should_not be_valid
+    end
+
+    it "should be met" do
+      article = Article.create( :title => 'Validating the system' )
+      @comment.article = article
+      @comment.should be_valid
+    end
+  end
 end

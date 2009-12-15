@@ -28,6 +28,9 @@ module Correlate
     # (defaults to +get+ for CouchRest docs, and +find+ for ActiveRecord models)
     attr_accessor :load_via
 
+    # Whether the correlation should be recipocal
+    attr_accessor :recipocal
+
     # Name of a view used to load documents from ActiveRecord's side
     attr_accessor :view
 
@@ -103,6 +106,10 @@ module Correlate
 
     def source_class
       source
+    end
+
+    def recipocal?
+      @recipocal || false
     end
 
     private

@@ -1,6 +1,8 @@
 module Correlate
   module Relationships
 
+    autoload :Validator, 'correlate/relationships/couchrest/validator'
+
     # Configure relationships between CouchRest::ExtendedDocument classes, as
     # well as between CouchRest::ExtendedDocument & ActiveRecord::Base classes.
     #
@@ -35,8 +37,14 @@ module Correlate
 
           # Make sure our links array is properly casted
           klass.class_eval <<-EOF, __FILE__, __LINE__
-            def links=( array )
-              self[:links] = Correlate::Links.new( self.class, array )
+            def links
+              unless self[:links].respond_to?( :owner )
+                self[:links] = Correlate::Links.new( self.class, self[:links], self )
+              end
+
+              self[:links].owner ||= self
+
+              self[:links]
             end
           EOF
         end
@@ -73,6 +81,7 @@ module Correlate
       # @option options [Fixnum] :requires (nil) a number of documents required
       # @option options [Symbol] :id_method (:id) name of a method use to retrieve the 'foreign key' value from documents added to the relationship
       # @option options [Symbol] :load_via (:get/:find) name of the class method used to retreive related documents (defaults to :get for CouchRest::ExtendedDocument, :find for ActiveRecord::Base)
+      # @option options [Symbol] :recipocal (false) whether to update the links on the corresponding object as well
       def some( name, options = {} )
         options[:source] = @klass
 
@@ -119,10 +128,11 @@ module Correlate
       # @option options [Fixnum] :required (false) whether required or not
       # @option options [Symbol] :id_method (:id) name of a method use to retrieve the 'foreign key' value from documents added to the relationship
       # @option options [Symbol] :load_via (:get/:find) name of the class method used to retreive related documents (defaults to :get for CouchRest::ExtendedDocument, :find for ActiveRecord::Base)
+      # @option options [Symbol] :recipocal (false) whether to update the links on the corresponding object as well
       def a( name, options = {} )
         options[:source] = @klass
 
-        correlation = Correlate::Relationships.build_correlation( name, :some, options )
+        correlation = Correlate::Relationships.build_correlation( name, :a, options )
         @klass.correlations << correlation
 
         @klass.class_eval <<-EOF, __FILE__, __LINE__
@@ -147,7 +157,7 @@ module Correlate
 
           fields = [ :links ]
           opts = @klass.opts_from_validator_args( fields )
-          @klass.add_validator_to_context( opts, fields, Correlate::Validator )
+          @klass.add_validator_to_context( opts, fields, Validator )
         end
       end
 

@@ -6,6 +6,6 @@ class Person < CouchRest::ExtendedDocument
   include Correlate
 
   related_to do
-    some :people, :class => 'Person', :rel => 'person'
+    some :people, :class => 'Person', :rel => 'person', :recipocal => true
   end
 end

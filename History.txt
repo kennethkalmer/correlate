@@ -1,3 +1,8 @@
+== 0.1.2 (WIP)
+
+* Support for recipocal correlations
+* Fixed an embarrasing issue with link clones not being cloned.
+
 == 0.1.1 (2009-12-14)
 
 * Fixed an issue where target classes are namespaced
