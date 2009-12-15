@@ -98,8 +98,6 @@ module Correlate
 
     def target_class
       target.split('::').inject( Object ) do |parent, klass|
-        raise "Class #{klass} not found" if !parent.const_defined?( klass.to_sym )
-
         parent.const_get( klass.to_sym )
       end
     end
